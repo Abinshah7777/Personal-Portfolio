@@ -97,7 +97,8 @@
 
           <div class="hero-actions">
             <a href="#projects" class="btn btn-primary">View Projects</a>
-            <a href="assets/Abinshah_PM_CV.pdf" download class="btn btn-ghost">Download CV ↓</a>
+            <a href="assets/Abinshah_PM_CV.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-ghost" aria-label="View CV">📄</a>
+            <a href="assets/Abinshah_PM_CV.pdf" download class="btn btn-ghost" aria-label="Download CV">⬇️</a>
           </div>
 
           <div class="hero-stats" aria-label="Quick stats">
@@ -120,20 +121,16 @@
 
         <div class="hero-photo-panel">
           <div class="photo-frame">
-            <div class="photo-wrap">
+            <div class="photo-wrap" style="box-shadow: 0 20px 60px rgba(0,0,0,0.3); border-radius: 12px; overflow: hidden;">
               <img
                 src="assets/abinshah.jpg"
                 alt="Abinshah P M standing near trees"
                 class="profile-photo"
                 loading="eager"
+                style="filter: brightness(1.05) contrast(1.1); transition: transform 0.3s ease;"
               />
             </div>
-            <div class="photo-deco photo-deco--tl">
-              <span class="photo-deco-icon">💻</span> Backend Developer
-            </div>
-            <div class="photo-deco photo-deco--br">
-              <span class="photo-deco-icon">📍</span> Kerala, India
-            </div>
+
           </div>
         </div>
       </div>
@@ -357,7 +354,7 @@
           <!-- Project 1: Catalogue Management System (Featured) -->
           <article class="project-card project-card--featured" data-category="full-stack api">
             <div class="project-image">
-              <img src="assets/catalogue management.webp"
+              <img src="assets/catalogue.png"
                    alt="Diagram illustrating Product Catalog Management processes and attributes"
                    class="project-img" loading="lazy">
             </div>
@@ -386,9 +383,9 @@
           <!-- Project 2: LivBus (Featured, Group Project) -->
           <article class="project-card project-card--featured" data-category="full-stack api">
             <div class="project-image">
-              <img src="assets/livbus.webp"
+              <img src="assets/LivBus.png"
                    alt="Mockup representation of LivBus Real-Time Bus Tracking platform with maps"
-                   class="project-img" loading="lazy" onerror="this.src='assets/catalogue management.webp'">
+                   class="project-img" loading="lazy" onerror="this.src='assets/catalogue.png'">
             </div>
             <div class="project-body">
               <div class="project-meta">
@@ -415,7 +412,7 @@
           <!-- Project 3: Digitora -->
           <article class="project-card" data-category="frontend">
             <div class="project-image">
-              <img src="assets/digitora.webp"
+              <img src="assets/Digitora.png"
                    alt="Digitora Digital Agency layout illustration"
                    class="project-img" loading="lazy" onerror="this.src='assets/Task MAnagement.webp'">
             </div>
@@ -538,11 +535,18 @@
               </div>
             </div>
 
-            <a href="assets/Abinshah_PM_CV.pdf" download
-               class="btn btn-primary cv-download"
-               aria-label="Download Abinshah PM's CV as PDF">
-              ↓ Download CV (PDF)
-            </a>
+            <div class="cv-download-buttons" style="display: flex; gap: 10px;">
+              <a href="assets/Abinshah_PM_CV.pdf" target="_blank" rel="noopener noreferrer"
+                 class="btn btn-primary cv-download"
+                 aria-label="View CV" title="View CV">
+                📄
+              </a>
+              <a href="assets/Abinshah_PM_CV.pdf" download
+                 class="btn btn-primary cv-download"
+                 aria-label="Download CV" title="Download CV">
+                ⬇️
+              </a>
+            </div>
             <p class="cv-note">Last updated 2025 · PDF format</p>
           </div>
 
