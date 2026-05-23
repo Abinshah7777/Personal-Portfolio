@@ -1,338 +1,268 @@
-// ========== INITIALIZE EMAILJS ==========
-(function() {
-  emailjs.init("bVnOK8nNnzAXCFOVF"); // Replace with your actual EmailJS public key
-})();
+/* ============================================================
+   PORTFOLIO — script.js
+   Clean, performant, accessible JS
+   ============================================================ */
 
-// ========== MOBILE NAVIGATION TOGGLE ==========
-const navToggle = document.getElementById('navToggle');
-const navMenu = document.getElementById('navMenu');
-const navLinks = document.querySelectorAll('.nav-link');
-
-navToggle.addEventListener('click', () => {
-  navToggle.classList.toggle('active');
-  navMenu.classList.toggle('active');
-  document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
+// ========== EMAILJS INIT ==========
+// Note: Keep your service/template IDs in env variables or a config file
+// for security — never commit real keys to public repos
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof emailjs !== 'undefined') {
+    emailjs.init("bVnOK8nNnzAXCFOVF");
+  }
 });
 
-// Close mobile menu when clicking a link
+// ========== UTILITY: DEBOUNCE ==========
+function debounce(fn, ms = 100) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
+}
+
+// ========== NAVBAR ==========
+const navbar   = document.getElementById('navbar');
+const navToggle = document.getElementById('navToggle');
+const navMenu  = document.getElementById('navMenu');
+const navLinks = document.querySelectorAll('.nav-link');
+
+// Scroll state
+window.addEventListener('scroll', debounce(() => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+}, 50));
+
+// Mobile toggle
+navToggle.addEventListener('click', () => {
+  const isOpen = navMenu.classList.toggle('open');
+  navToggle.classList.toggle('open', isOpen);
+  navToggle.setAttribute('aria-expanded', String(isOpen));
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+});
+
+// Close on link click (mobile)
 navLinks.forEach(link => {
   link.addEventListener('click', () => {
-    navToggle.classList.remove('active');
-    navMenu.classList.remove('active');
+    navMenu.classList.remove('open');
+    navToggle.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
   });
 });
 
-// ========== SMOOTH SCROLLING ==========
+// Close on outside click (mobile)
+document.addEventListener('click', (e) => {
+  if (!navbar.contains(e.target) && navMenu.classList.contains('open')) {
+    navMenu.classList.remove('open');
+    navToggle.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+});
+
+// ========== SMOOTH SCROLL ==========
 navLinks.forEach(link => {
   link.addEventListener('click', (e) => {
+    const href = link.getAttribute('href');
+    if (!href.startsWith('#')) return;
     e.preventDefault();
-    const targetId = link.getAttribute('href');
-    const targetSection = document.querySelector(targetId);
-    
-    if (targetSection) {
-      const navHeight = document.querySelector('.navbar').offsetHeight;
-      const targetPosition = targetSection.offsetTop - navHeight;
-      
-      window.scrollTo({
-        top: targetPosition,
-        behavior: 'smooth'
-      });
-    }
+
+    const target = document.querySelector(href);
+    if (!target) return;
+
+    const navH = navbar.offsetHeight;
+    const top  = target.getBoundingClientRect().top + window.scrollY - navH - 8;
+
+    window.scrollTo({ top, behavior: 'smooth' });
+
+    // Move focus for accessibility
+    target.setAttribute('tabindex', '-1');
+    target.focus({ preventScroll: true });
+    target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
   });
 });
 
-// ========== NAVBAR SCROLL EFFECT ==========
-const navbar = document.getElementById('navbar');
-let lastScroll = 0;
-
-window.addEventListener('scroll', () => {
-  const currentScroll = window.pageYOffset;
-  
-  // Add scrolled class for styling
-  if (currentScroll > 100) {
-    navbar.classList.add('scrolled');
-  } else {
-    navbar.classList.remove('scrolled');
-  }
-  
-  lastScroll = currentScroll;
+// Footer "Back to Top" link
+document.querySelectorAll('a[href="#home"]').forEach(a => {
+  a.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 });
 
-// ========== ACTIVE NAVIGATION HIGHLIGHTING ==========
-const sections = document.querySelectorAll('section[id]');
+// ========== ACTIVE NAV HIGHLIGHTING ==========
+const sections = [...document.querySelectorAll('section[id]')];
 
-function highlightNavigation() {
-  const scrollPosition = window.pageYOffset + 200;
-  
-  sections.forEach(section => {
-    const sectionTop = section.offsetTop;
-    const sectionHeight = section.offsetHeight;
-    const sectionId = section.getAttribute('id');
-    
-    if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-      navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${sectionId}`) {
-          link.classList.add('active');
-        }
-      });
+function updateActiveNav() {
+  const scrollY    = window.scrollY;
+  const navHeight  = navbar.offsetHeight + 20;
+
+  let current = '';
+  sections.forEach(sec => {
+    if (scrollY >= sec.offsetTop - navHeight) {
+      current = sec.getAttribute('id');
     }
+  });
+
+  navLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    link.classList.toggle('active', href === `#${current}`);
   });
 }
 
-window.addEventListener('scroll', highlightNavigation);
+window.addEventListener('scroll', debounce(updateActiveNav, 80));
+updateActiveNav();
 
-// ========== SCROLL ANIMATIONS (INTERSECTION OBSERVER) ==========
-const observerOptions = {
-  threshold: 0.1,
-  rootMargin: '0px 0px -100px 0px'
-};
-
+// ========== INTERSECTION OBSERVER — SECTION REVEAL ==========
 const sectionObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       entry.target.classList.add('visible');
+      sectionObserver.unobserve(entry.target); // Fire once
     }
   });
-}, observerOptions);
-
-// Observe all sections
-document.querySelectorAll('.section').forEach(section => {
-  sectionObserver.observe(section);
+}, {
+  threshold: 0.08,
+  rootMargin: '0px 0px -60px 0px',
 });
 
-// ========== TIMELINE ANIMATION ==========
+document.querySelectorAll('.section').forEach(s => sectionObserver.observe(s));
+
+// ========== TIMELINE STAGGER ANIMATION ==========
 const timelineObserver = new IntersectionObserver((entries) => {
-  entries.forEach((entry, index) => {
+  entries.forEach((entry, i) => {
     if (entry.isIntersecting) {
+      const delay = parseInt(entry.target.dataset.delay || 0);
       setTimeout(() => {
         entry.target.classList.add('visible');
-      }, index * 150); // Stagger animation
+      }, delay);
+      timelineObserver.unobserve(entry.target);
     }
   });
-}, observerOptions);
+}, { threshold: 0.1 });
 
-document.querySelectorAll('.timeline-item').forEach(item => {
+document.querySelectorAll('.timeline-item').forEach((item, i) => {
+  item.dataset.delay = i * 120;
   timelineObserver.observe(item);
 });
 
-// ========== SKILL CHIPS HOVER EFFECT (ENHANCED) ==========
-const skillChips = document.querySelectorAll('.skill-chip');
+// ========== SCROLL TO TOP BUTTON ==========
+const scrollTopBtn = document.getElementById('scrollTopBtn');
 
-skillChips.forEach(chip => {
-  chip.addEventListener('mouseenter', function() {
-    this.style.transform = 'translateY(-4px) scale(1.05)';
-  });
-  
-  chip.addEventListener('mouseleave', function() {
-    this.style.transform = '';
-  });
+window.addEventListener('scroll', debounce(() => {
+  scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+}, 100));
+
+scrollTopBtn.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-// ========== CONTACT FORM HANDLING WITH EMAILJS ==========
+// ========== CONTACT FORM ==========
 const contactForm = document.getElementById('contactForm');
-const formStatus = document.getElementById('formStatus');
-const submitBtn = contactForm.querySelector('.btn-submit');
+const formStatus  = document.getElementById('formStatus');
+const submitBtn   = document.getElementById('submitBtn');
 
-contactForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  // Show loading state
-  submitBtn.classList.add('loading');
-  submitBtn.disabled = true;
-  formStatus.classList.remove('show', 'success', 'error');
-  
-  try {
-    // Send email using EmailJS
-    const response = await emailjs.sendForm(
-      'service_7ooqqfj',      // Replace with your EmailJS service ID
-      'template_lqe2pwp',     // Replace with your EmailJS template ID
-      contactForm
-    );
-    
-    // Success
-    formStatus.textContent = '✓ Message sent successfully! I\'ll get back to you soon.';
-    formStatus.classList.add('show', 'success');
-    contactForm.reset();
-    
-    // Hide success message after 5 seconds
+if (contactForm) {
+  contactForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Basic validation
+    const name    = contactForm.name.value.trim();
+    const email   = contactForm.email.value.trim();
+    const message = contactForm.message.value.trim();
+
+    if (!name || !email || !message) {
+      showStatus('Please fill in all fields.', 'error');
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      showStatus('Please enter a valid email address.', 'error');
+      return;
+    }
+
+    // Loading state
+    submitBtn.disabled = true;
+    submitBtn.classList.add('is-loading');
+    formStatus.className = 'form-status';
+    formStatus.style.display = 'none';
+
+    try {
+      if (typeof emailjs === 'undefined') throw new Error('EmailJS not loaded');
+
+      await emailjs.sendForm(
+        'service_7ooqqfj',
+        'template_lqe2pwp',
+        contactForm
+      );
+
+      showStatus('✓ Message sent! I\'ll be in touch soon.', 'success');
+      contactForm.reset();
+
+    } catch (err) {
+      console.error('EmailJS error:', err);
+      showStatus('✗ Failed to send. Please email me directly at abinshapm3@gmail.com', 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('is-loading');
+    }
+  });
+}
+
+function showStatus(msg, type) {
+  formStatus.textContent = msg;
+  formStatus.className = `form-status ${type}`;
+
+  if (type === 'success') {
     setTimeout(() => {
-      formStatus.classList.remove('show');
-    }, 5000);
-    
-  } catch (error) {
-    // Error
-    console.error('EmailJS Error:', error);
-    formStatus.textContent = '✗ Failed to send message. Please try again or email me directly.';
-    formStatus.classList.add('show', 'error');
-    
-    // Hide error message after 7 seconds
-    setTimeout(() => {
-      formStatus.classList.remove('show');
-    }, 7000);
-  } finally {
-    // Reset loading state
-    submitBtn.classList.remove('loading');
-    submitBtn.disabled = false;
+      formStatus.className = 'form-status';
+    }, 6000);
   }
-});
+}
 
-// ========== FORM INPUT ANIMATIONS ==========
-const formInputs = document.querySelectorAll('.form-input');
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 
-formInputs.forEach(input => {
-  // Add focus animation
-  input.addEventListener('focus', function() {
-    this.parentElement.style.transform = 'translateY(-2px)';
-  });
-  
-  input.addEventListener('blur', function() {
-    this.parentElement.style.transform = '';
-  });
-});
-
-// ========== PROJECT CARDS PARALLAX EFFECT ==========
-const projectCards = document.querySelectorAll('.project-card');
-
-projectCards.forEach(card => {
+// ========== PROJECT CARD SUBTLE TILT ==========
+// Uses CSS transform only — no DOM creation
+document.querySelectorAll('.project-card').forEach(card => {
   card.addEventListener('mousemove', (e) => {
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    
-    const rotateX = (y - centerY) / 20;
-    const rotateY = (centerX - x) / 20;
-    
-    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-12px)`;
+    const r   = card.getBoundingClientRect();
+    const x   = (e.clientX - r.left) / r.width  - 0.5;  // -0.5 to 0.5
+    const y   = (e.clientY - r.top)  / r.height - 0.5;
+
+    card.style.transform = `
+      translateY(-4px)
+      rotateX(${-y * 4}deg)
+      rotateY(${x * 4}deg)
+    `;
   });
-  
+
   card.addEventListener('mouseleave', () => {
     card.style.transform = '';
   });
 });
 
-// ========== SERVICE CARDS STAGGER ANIMATION ==========
-const serviceCards = document.querySelectorAll('.service-card');
+// ========== KEYBOARD TRAP — Mobile Menu ==========
+navMenu.addEventListener('keydown', (e) => {
+  if (!navMenu.classList.contains('open')) return;
 
-const serviceObserver = new IntersectionObserver((entries) => {
-  entries.forEach((entry, index) => {
-    if (entry.isIntersecting) {
-      setTimeout(() => {
-        entry.target.style.opacity = '1';
-        entry.target.style.transform = 'translateY(0)';
-      }, index * 100);
-    }
-  });
-}, observerOptions);
-
-serviceCards.forEach(card => {
-  card.style.opacity = '0';
-  card.style.transform = 'translateY(30px)';
-  card.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
-  serviceObserver.observe(card);
-});
-
-// ========== CURSOR GRADIENT EFFECT (OPTIONAL) ========== 
-
-document.addEventListener('mousemove', (e) => {
-  const cursor = document.createElement('div');
-  cursor.className = 'cursor-trail';
-  cursor.style.left = e.pageX + 'px';
-  cursor.style.top = e.pageY + 'px';
-  
-  document.body.appendChild(cursor);
-  
-  setTimeout(() => {
-    cursor.remove();
-  }, 500);
-});
-
-
-// ========== SCROLL TO TOP BUTTON ==========
-const scrollToTopBtn = document.createElement('button');
-scrollToTopBtn.innerHTML = '↑';
-scrollToTopBtn.className = 'scroll-to-top';
-scrollToTopBtn.style.cssText = `
-  position: fixed;
-  bottom: 40px;
-  right: 40px;
-  width: 50px;
-  height: 50px;
-  background: var(--primary);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  font-size: 1.5rem;
-  cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  z-index: 999;
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
-`;
-
-document.body.appendChild(scrollToTopBtn);
-
-window.addEventListener('scroll', () => {
-  if (window.pageYOffset > 500) {
-    scrollToTopBtn.style.opacity = '1';
-    scrollToTopBtn.style.visibility = 'visible';
-  } else {
-    scrollToTopBtn.style.opacity = '0';
-    scrollToTopBtn.style.visibility = 'hidden';
+  if (e.key === 'Escape') {
+    navMenu.classList.remove('open');
+    navToggle.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+    navToggle.focus();
   }
 });
 
-scrollToTopBtn.addEventListener('click', () => {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  });
-});
-
-scrollToTopBtn.addEventListener('mouseenter', function() {
-  this.style.transform = 'translateY(-4px) scale(1.1)';
-  this.style.boxShadow = '0 8px 30px rgba(99, 102, 241, 0.5)';
-});
-
-scrollToTopBtn.addEventListener('mouseleave', function() {
-  this.style.transform = '';
-  this.style.boxShadow = '0 4px 20px rgba(99, 102, 241, 0.4)';
-});
-
-// ========== PERFORMANCE OPTIMIZATION ==========
-// Debounce function for scroll events
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
-
-// Apply debounce to scroll events
-const debouncedHighlight = debounce(highlightNavigation, 100);
-window.removeEventListener('scroll', highlightNavigation);
-window.addEventListener('scroll', debouncedHighlight);
-
-// ========== PRELOAD ANIMATIONS ==========
-window.addEventListener('load', () => {
-  // Add loaded class to body for any load-based animations
-  document.body.classList.add('loaded');
-  
-  // Trigger initial scroll check for navigation highlighting
-  highlightNavigation();
-});
-
-// ========== CONSOLE MESSAGE ==========
-console.log('%c👋 Welcome to my portfolio!', 'color: #6366f1; font-size: 20px; font-weight: bold;');
-console.log('%cBuilt with HTML, CSS, and JavaScript', 'color: #64748b; font-size: 14px;');
-console.log('%cCheck out my work: https://github.com/Abinshah7777', 'color: #10b981; font-size: 14px;');
+// ========== CONSOLE SIGNATURE ==========
+console.log(
+  '%c Abinshah P M — Portfolio',
+  'color: #f0c040; font-size: 16px; font-weight: bold; font-family: monospace;'
+);
+console.log(
+  '%c github.com/Abinshah7777',
+  'color: #8a8898; font-size: 12px; font-family: monospace;'
+);
