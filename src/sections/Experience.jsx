@@ -6,7 +6,7 @@ import internCertificate from '@/assets/Intern Certificate of Abinshah PM .pdf';
 
 const experiences = [
   {
-    period: '2025 — Present',
+    period: 'June 2025 — July 2025',
     role: 'Software Engineering Intern',
     company: 'Litmus7',
     desc: 'Developing transactional catalogue management systems using Python and Flask micro-frameworks.',
