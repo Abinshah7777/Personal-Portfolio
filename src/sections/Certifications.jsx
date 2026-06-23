@@ -51,7 +51,7 @@ export default function Certifications() {
                   href={cert.credentialUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
                   title="View credential"
                 >
                   <ExternalLink size={18} className="text-accent hover:text-accent/80" />

@@ -34,12 +34,12 @@ export default function Navbar() {
         </a>
 
         {/* Desktop */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-6 xl:gap-8">
           {links.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-muted hover:text-ink transition-colors"
+              className="text-sm font-medium text-muted hover:text-ink transition-colors whitespace-nowrap"
             >
               {link.label}
             </a>
@@ -51,9 +51,9 @@ export default function Navbar() {
           </a>
         </div>
 
-        {/* Mobile toggle */}
+        {/* Mobile/tablet toggle */}
         <button
-          className="md:hidden text-ink"
+          className="lg:hidden text-ink"
           onClick={() => setIsMobileMenuOpen((v) => !v)}
           aria-label="Toggle navigation menu"
         >
@@ -61,9 +61,9 @@ export default function Navbar() {
         </button>
       </nav>
 
-      {/* Mobile drawer */}
+      {/* Mobile/tablet drawer */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background px-6 py-6 flex flex-col gap-5">
+        <div className="lg:hidden border-t border-border bg-background px-6 py-6 flex flex-col gap-5 max-h-[calc(100vh-72px)] overflow-y-auto">
           {links.map((link) => (
             <a
               key={link.href}

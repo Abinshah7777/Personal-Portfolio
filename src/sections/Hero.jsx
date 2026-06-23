@@ -26,22 +26,22 @@ export default function Hero() {
   }, [visibleLines]);
 
   return (
-    <section className="relative pt-36 pb-24 overflow-hidden">
-      <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-2 items-center">
+    <section className="relative pt-28 sm:pt-32 lg:pt-36 pb-16 sm:pb-20 lg:pb-24 overflow-hidden">
+      <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-2 items-center">
         {/* Left: statement */}
         <div className="space-y-7">
-          <span className="tag-label inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            Open to internships &amp; junior roles
+          <span className="tag-label inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-1.5 max-w-full">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
+            <span className="text-balance">Open to internships &amp; junior roles</span>
           </span>
 
-          <h1 className="font-display text-5xl md:text-6xl leading-[1.08] text-ink">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.1] sm:leading-[1.08] text-ink">
             Backend systems,
             <br />
             built to <span className="italic text-accent">hold weight.</span>
           </h1>
 
-          <p className="text-lg text-muted max-w-md leading-relaxed">
+          <p className="text-base sm:text-lg text-muted max-w-md leading-relaxed">
             I'm Abinshah — a software engineer studying AI &amp; Data Science, currently
             building catalogue and course-management systems with Python, Flask,
             and the MERN stack.
@@ -63,9 +63,9 @@ export default function Hero() {
         </div>
 
         {/* Right: profile photo + terminal */}
-        <div className="flex justify-center items-center gap-4 -ml-[200px]">
+        <div className="flex flex-col xl:flex-row justify-center items-center gap-6 xl:gap-4 xl:-ml-[200px]">
           {/* Photo */}
-          <div className="relative w-72 h-80">
+          <div className="relative w-56 h-64 sm:w-72 sm:h-80 shrink-0">
             {/* Gradient border background */}
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-accent via-accent/20 to-background opacity-40 blur-2xl" />
             {/* Photo container */}
@@ -77,7 +77,7 @@ export default function Hero() {
           </div>
 
           {/* Terminal snippet */}
-          <div className="card p-5 shadow-[0_40px_80px_-40px_rgba(21,23,28,0.18)] w-64">
+          <div className="card p-5 shadow-[0_40px_80px_-40px_rgba(21,23,28,0.18)] w-full max-w-xs sm:max-w-none sm:w-64 shrink-0">
             <div className="flex items-center gap-2 pb-3 border-b border-border mb-4">
               <span className="h-2.5 w-2.5 rounded-full bg-[#ECC] border border-border" style={{ backgroundColor: '#f5b8a8' }} />
               <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: '#f5dca8' }} />
